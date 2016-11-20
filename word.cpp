@@ -3,9 +3,7 @@
 
 string Word::GenAnagram() {
   anagram = word;
-  for(int i = 0; i < ((anagram.size() * 1000) % 17); i++)
-    next_permutation(anagram.begin(), anagram.end());
-
+  random_shuffle(anagram.begin(), anagram.end());
   return anagram;
 }
 
