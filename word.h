@@ -7,7 +7,7 @@ using namespace std;
 
 class Word {
  public:
-  Word() {};
+  Word();
   ~Word() {};
   Word(string s);      // Create a new Word with the plain text s
   string GetWord() {return word;};
@@ -18,6 +18,7 @@ class Word {
   void SetWord(string s) {      // Set the plain text for this word.
     word = s;
   };
+  static const int NOT_ON_PUZZLE = 0;
   static const int HORIZONTAL = 1;
   static const int VERTICAL = 2;
   int row, col, direction;

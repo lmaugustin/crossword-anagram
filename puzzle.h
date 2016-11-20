@@ -22,7 +22,7 @@ class Puzzle {
   void PrintSolution(ostream &ostr);  // Print the solution
   void PrintPuzzle(ostream &ostr);
   void PrintClues(ostream &ostr);
-  char get_letter_at(int r, int c);
+  char get_letter_at(int r, int c, char blank);
 };
 
 
