@@ -1,8 +1,9 @@
 #include <iostream>
-#include <fstream>
 #include <string>
-#include "puzzle.h"
 #include <iomanip>
+#include <algorithm>
+#include "puzzle.h"
+
 using namespace std;
 
 Puzzle::Puzzle() {
@@ -15,9 +16,11 @@ void Puzzle::ReadWords(istream &istr) {
   // word, words[1] is the next longest word, etc. until words.back() is the shortest word.
   // Convert words to all upper case as they are read in and stored.
   string theline;
+  bool inserted;
   
   while(true) {
     getline(istr, theline);
+    inserted = false;
    
     if(theline[0] == '.') {
       return;
@@ -29,43 +32,159 @@ void Puzzle::ReadWords(istream &istr) {
       for (auto io = words.begin(); io != words.end(); io++) {
 	if(io->GetWord().size() <= theline.size() ) {
 	  words.insert(io, *(new Word(theline)) );
+	  inserted = true;
 	  break;
+	}
+      }
+      if( ! inserted) { // append to the very end
+	words.push_back(*(new Word(theline)));
+      }
+    }
+  }
+}
+
+// Place words on the puzzle.
+// Assume that the words array is initially ordered from largest word to smallest word.
+void Puzzle::Generate() {       
+  int loopcount = 0;
+
+  for(int i = 0; i < words.size(); ) {  // Try to place words[i]
+    if(i == 0) {
+      // Place the first (longest on first pass) word in the center of the board
+      words[0].col = (Puzzle::COLS - words[0].GetWord().length()) / 2;
+      words[0].row = Puzzle::ROWS / 2;
+      words[0].direction = Word::HORIZONTAL;
+      i++;
+    } else {
+      if (try_to_place_word(i)) {
+	i++; // successfully found a place for word[i]
+      } else {
+	// failed to find a place for word[i]
+	// randomize the list of words and try again
+	random_shuffle(words.begin(), words.end());
+	if(loopcount++ > (words.size() * words.size())) {
+	  cerr << "Unable to place all words. Giving up." << endl;
+	  return;
+	}
+	i = 0;
+	for(auto it = words.begin(); it < words.end(); it++) {
+	  it->row = it->col = 0;
+	  it->direction = Word::NOT_ON_PUZZLE;
 	}
       }
     }
   }
 }
 
-void Puzzle::Generate() {       // Place words on the puzzle.
-  // Assume that the words array is ordered from largest word to smallest word.
-  // Place the first (longest) word in the center of the board
-  words[0].col = (Puzzle::COLS - words[0].GetWord().length()) / 2;
-  words[0].row = Puzzle::ROWS / 2;
-  words[0].direction = Word::HORIZONTAL;
-  for(int i = 1; i < words.size(); i++) {  // Try to place words[i]
-    for (int h = 0; h < i; h++) { // look at all previously placed words
-      for (int a = 0; a < words[i].GetWord().length(); a++) {
-	for (int b = 0; b < words[h].GetWord().length(); b++) {
-	  if((words[i].GetWord())[a] == (words[h].GetWord())[b]) {
-	    // Common letter between the two words.
-	    // We are trying to place words[i]. The letter at position [a] in words[i]
-	    // matches the letter at position [b] in words[h].  words[h] is already on the board.
-	    if(words[h].direction == Word::HORIZONTAL) {
-	      // Word already on the board words[h] is Horizontal
-	      // word[i] must be vertical
-	      words[i].col = words[h].col + b;
-	      words[i].row = words[h].row - a;
-	      words[i].direction = Word::VERTICAL;
-	    } else {
-	      // Word already on the board words[h] is Vertical
-	      // word[i] must be horizontal
-	      // TBD...
-	    }
-	  }
+void Puzzle::check_for_intersect(string s1, string s2, int &index1, int &index2) {
+  for (int a = 0; a < s1.length(); a++) {
+    for (int b = 0; b < s2.length(); b++) {
+      if(s1[a] == s2[b]) {
+	index1 = a;
+	index2 = b;
+	return;
+      }
+    }
+  }
+  index1 = index2 = 01;
+}
+
+// Is it legal to put words[w] at (r,c) in direction d ?
+bool Puzzle::legal_word_spot(int w, int r, int c, int d) {
+  int rowend, colend;
+
+  // Is the (r,c) pair on the board?
+  if ((r < 0) || (c < 0))  return false;
+  if ((r > Puzzle::ROWS) || (c > Puzzle::COLS)) return false;
+  // Is the last character on the board?
+  if (d == Word::HORIZONTAL) {
+    colend = c + words[w].GetWord().size();
+    if(colend > Puzzle::COLS) return false;
+  } else if (d == Word::VERTICAL) { // Vertical
+    rowend = r + words[w].GetWord().size();
+    if(rowend > Puzzle::ROWS) return false;
+  }
+  // Is there already a Word on the board that is too close to us?
+  for(auto it = words.begin(); it != words.end(); it++) {
+    if(d == Word::VERTICAL) {
+      if(it->direction == Word::VERTICAL) {
+	if((it->col == (c-1)) || (it->col == c) || (it->col == (c+1))) return false;
+      } else if(it->direction == Word::HORIZONTAL) {
+	/*
+	if((it->row >= (r-1)) && (it->row <= (r+words[w].GetWord().size()))) {
+	  // it is on a row that could run into words[w]
+	  if(((it->col + it->GetWord().size()) > (c-1)) &&
+	     ((it->col <= c))) return false;
+	}
+	*/
+      }
+    } else if (d == Word::HORIZONTAL) {
+      if(it->direction == Word::HORIZONTAL) {
+	if((it->row == (r-1)) || (it->row == r) || (it->row == (r+1))) return false;
+      } else if(it->direction == Word::HORIZONTAL) {
+	/*
+	if((it-> col >= (c-1)) && ((it->col <= (c + 1 +words[w].GetWord().size())))) {
+	  // it is on a column that could run into words[w]
+	  
+	}
+	*/
+      }
+    }
+  }
+  return true;
+}
+
+pair_array_t *letter_matches(string s1, string s2) {
+  pair_array_t *v;
+  v = new pair_array_t;
+
+  for (int a = 0; a < s1.length(); a++) {
+    for (int b = 0; b < s2.length(); b++) {
+      if(s1[a] == s2[b]) {
+	v->push_back(*(new Pair(a,b)));
+      }
+    }
+  }
+  return v;
+}
+
+bool Puzzle::try_to_place_word(int w) {
+  int row, col, rowend, colend;
+  int w_index, h_index;
+  pair_array_t *pa;
+  
+  for (int h = 0; h < w; h++) { // look at all previously placed words
+    pa = letter_matches(words[w].GetWord(), words[h].GetWord());
+    for(auto it = pa->begin(); it != pa->end(); it++) {
+      w_index = it->x;
+      h_index = it->y;
+      if(words[h].direction == Word::HORIZONTAL) {
+	// Word already on the board words[h] is Horizontal
+	// word[w] must be placed vertically
+	col = words[h].col + h_index;
+	row = words[h].row - w_index;
+	if(legal_word_spot(w,row,col,Word::VERTICAL)) {
+	  words[w].col = col;
+	  words[w].row = row;
+	  words[w].direction = Word::VERTICAL;
+	  return true;
+	}
+      } else {
+	// words[h].direction == Word::VERTICAL
+	// Word already on the board words[h] is Vertical
+	// word[w] must be placed horizontally
+	col = words[h].col - w_index;
+	row = words[h].row + h_index;
+	if(legal_word_spot(w,row,col,Word::HORIZONTAL)) {
+	  words[w].col = col;
+	  words[w].row = row;
+	  words[w].direction = Word::HORIZONTAL;
+	  return true;
 	}
       }
     }
   }
+  return false;
 }
 
 char Puzzle::get_letter_at(int r, int c, char blank) {
@@ -183,7 +302,7 @@ void Puzzle::PrintPuzzle(ostream &ostr) {
 
 void Puzzle::PrintClues(ostream &ostr) {
   for(auto it = words.begin(); it != words.end(); it++) {
-    ostr << setw(2) << it->row << ", " << setw(2) << it->col;
+    ostr << "(" << setw(2) << it->row << ", " << setw(2) << it->col << ")";
     switch(it->direction) {
     case Word::HORIZONTAL:
       cout << " Across ";
