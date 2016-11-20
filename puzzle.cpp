@@ -33,14 +33,14 @@ void Puzzle::Generate() {       // Place words on the puzzle.
 
 char Puzzle::get_letter_at(int r, int c) {
   int rows, cols;
-  
+  /*  
   for (rows = 0; rows < Puzzle::ROWS; rows++) {
-    for (cols = 0 cols < Puzzle::COLS; cols++) {
+    for (cols = 0; cols < Puzzle::COLS; cols++) {
       for(
     }
   }
 }
-
+  */
 void Puzzle::PrintSolution(ostream &ostr) {  // Print the solution
   int r, c;
   char l;
@@ -59,6 +59,7 @@ void Puzzle::PrintSolution(ostream &ostr) {  // Print the solution
   ostr << endl;
 
   ostr << "   -";
+  
   for(c = 0; c < Puzzle::COLS; c++) {
     ostr << '-';
   }
@@ -73,11 +74,13 @@ void Puzzle::PrintSolution(ostream &ostr) {  // Print the solution
     ostr << '|' << endl;
   }
   ostr << "   -";
+
   for(r = 0; r < Puzzle::ROWS; r++) {
     ostr << '-';
   }
   ostr << '-' << endl;
 }
+
 
 void Puzzle::PrintPuzzle(ostream &ostr) {
 }
