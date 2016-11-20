@@ -23,16 +23,17 @@ void Puzzle::ReadWords(istream &istr) {
       return;
     }
     for(int i = 0; i < theline.size(); i++) { theline[i] = toupper(theline[i]); }
-    
-    for (auto io = words.begin(); io != words.end(); io++) {
-      if(io->GetWord().size() <= theline.size() ) {
-	words.insert(io, *(new Word(theline)) );
-	break;
-
+    if (words.size() == 0) {
+      words.push_back(*(new Word(theline)));
+    } else {
+      for (auto io = words.begin(); io != words.end(); io++) {
+	if(io->GetWord().size() <= theline.size() ) {
+	  words.insert(io, *(new Word(theline)) );
+	  break;
+	}
       }
     }
   }
-  
 }
 
 void Puzzle::Generate() {       // Place words on the puzzle.
@@ -181,4 +182,16 @@ void Puzzle::PrintPuzzle(ostream &ostr) {
 }
 
 void Puzzle::PrintClues(ostream &ostr) {
+  for(auto it = words.begin(); it != words.end(); it++) {
+    ostr << setw(2) << it->row << ", " << setw(2) << it->col;
+    switch(it->direction) {
+    case Word::HORIZONTAL:
+      cout << " Across ";
+      break;
+    case Word::VERTICAL:
+      cout << " Down   ";
+      break;
+    }
+    cout << it->GetAnagram() << endl;
+  }
 }

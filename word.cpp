@@ -1,10 +1,11 @@
 #include "word.h"
+#include <algorithm>
 
 string Word::GenAnagram() {
-  // Generate an anagram for the word and return a copy
+  anagram = word;
+  for(int i = 0; i < ((anagram.size() * 1000) % 17); i++)
+    next_permutation(anagram.begin(), anagram.end());
 
-  // TBD
-  
   return anagram;
 }
 
