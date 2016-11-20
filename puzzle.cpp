@@ -33,10 +33,14 @@ void Puzzle::Generate() {       // Place words on the puzzle.
 
 char Puzzle::get_letter_at(int r, int c) {
   int rows, cols;
+
+  return '.';
   
   for (rows = 0; rows < Puzzle::ROWS; rows++) {
-    for (cols = 0 cols < Puzzle::COLS; cols++) {
-      for(
+    for (cols = 0; cols < Puzzle::COLS; cols++) {
+      for(auto it = words.begin(); it != words.end(); it++) {
+	//	if(it->
+      }
     }
   }
 }
