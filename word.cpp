@@ -11,4 +11,9 @@ string Word::GenAnagram() {
 Word::Word(string s) {
   word = s;
   this->GenAnagram();
+  direction = Word::NOT_ON_PUZZLE;
+}
+
+Word::Word() {
+  direction = Word::NOT_ON_PUZZLE;
 }
