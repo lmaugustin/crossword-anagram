@@ -7,7 +7,7 @@ using namespace std;
 
 class Word {
  public:
-  Word();
+  Word() {row = col = -1; direction = NOT_ON_PUZZLE;};
   ~Word() {};
   Word(string s);      // Create a new Word with the plain text s
   string GetWord() {return word;};

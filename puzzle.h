@@ -23,10 +23,12 @@ class Puzzle {
   void PrintPuzzle(ostream &ostr);
   void PrintClues(ostream &ostr);
  private:
+  bool place(int w);
+  void clear(int w);
   char get_letter_at(int r, int c, char blank);
-  bool try_to_place_word(int w);
+  bool insert_word(int word_to_add, int word_to_intersect, int add_word_index, int intersect_word_index);
   void check_for_intersect(string s1, string s2, int &index1, int &index2);
-  bool legal_word_spot(int w, int r, int c, int d);
+  bool legal_word_spot(int word_to_add, int word_to_intersect,int row, int col, int dir);
 };
 
 class Pair {
