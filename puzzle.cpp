@@ -1,5 +1,9 @@
+#include <iostream>
+#include <fstream>
+#include <string>
 #include "puzzle.h"
 #include <iomanip>
+using namespace std;
 
 Puzzle::Puzzle() {
   words.reserve(20);
@@ -10,17 +14,25 @@ void Puzzle::ReadWords(istream &istr) {
   // Insert the words so that they are stored ordered by descending length.  e.g. words[0] is the longest
   // word, words[1] is the next longest word, etc. until words.back() is the shortest word.
   // Convert words to all upper case as they are read in and stored.
+  string theline;
+  
+  while(true) {
+    getline(istr, theline);
+   
+    if(theline[0] == '.') {
+      return;
+    }
+    for(int i = 0; i < theline.size(); i++) { theline[i] = toupper(theline[i]); }
+    
+    for (auto io = words.begin(); io != words.end(); io++) {
+      if(io->GetWord().size() <= theline.size() ) {
+	words.insert(io, *(new Word(theline)) );
+	break;
 
-  /*
-   * Dummy test data remove when real function is written
-   */
-  words.push_back(Word("BASEBALL"));
-  words.push_back(Word("SMELL"));
-  words.push_back(Word("ARTSY"));
-  words.push_back(Word("YELL"));
-  /*
-   * End dummy test data
-   */
+      }
+    }
+  }
+  
 }
 
 void Puzzle::Generate() {       // Place words on the puzzle.
@@ -33,14 +45,18 @@ void Puzzle::Generate() {       // Place words on the puzzle.
 
 char Puzzle::get_letter_at(int r, int c) {
   int rows, cols;
-  /*  
+  
+  return '.';  
+  
   for (rows = 0; rows < Puzzle::ROWS; rows++) {
     for (cols = 0; cols < Puzzle::COLS; cols++) {
-      for(
+      for(auto it = words.begin(); it != words.end(); it++) {
+	//	if(it->
+      }
     }
   }
 }
-  */
+
 void Puzzle::PrintSolution(ostream &ostr) {  // Print the solution
   int r, c;
   char l;
