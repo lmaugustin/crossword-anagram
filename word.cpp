@@ -7,3 +7,8 @@ string Word::GenAnagram() {
   
   return anagram;
 }
+
+Word::Word(string s) {
+  word = s;
+  this->GenAnagram();
+}

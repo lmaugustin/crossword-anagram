@@ -11,13 +11,31 @@
  *
  * Primary data structures:
  *
- * class Word_t
+ * class Word
  *   This is one anagram word in the puzzle.
- * class Puzzle_t
+ * class Puzzle
  *   This is a puzzle.  A puzzle is primarily a list of words.
  *
  */
 
+#include "puzzle.h"
+#include <iostream>
 
 int main() {
+  Puzzle P;
+
+  cout << "Anagram Crossword Puzzle Generator" << endl;
+  cout << "----------------------------------" << endl << endl;
+  cout << "Enter a list of up to 20 words.  A '.' on a line by itself ends the list.  A word may be at most 15 letters." << endl;
+  P.ReadWords(cin);
+  P.Generate();
+  cout << endl << "Solution:" << endl << endl;
+  P.PrintSolution(cout);
+  cout << endl << "Crossword Puzzle:" << endl << endl;
+  P.PrintPuzzle(cout);
+  cout << endl << "Clues:" << endl << endl;
+  P.PrintClues(cout);
+
+  return 0;
+
 }

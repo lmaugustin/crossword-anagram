@@ -2,14 +2,17 @@
 
 GFLAGS=-g -c -std=c++11
 
-life: lifeboard.o life.o
-	g++ lifeboard.o life.o -o life
+crossword: crossword.o word.o puzzle.o
+	g++ crossword.o word.o puzzle.o -o crossword
 
-lifeboard.o: lifeboard.cpp lifeboard.h
-	g++ ${GFLAGS} lifeboard.cpp -o lifeboard.o
+word.o: word.cpp word.h
+	g++ ${GFLAGS} word.cpp -o word.o
 
-life.o: life.cpp
-	g++ ${GFLAGS} life.cpp -o life.o
+puzzle.o: puzzle.cpp puzzle.h
+	g++ ${GFLAGS} puzzle.cpp -o puzzle.o
+
+crossword.o: crossword.cpp
+	g++ ${GFLAGS} crossword.cpp -o crossword.o
 
 clean:
-	rm *.o *~ life
+	rm -f *.o *~ crossword
